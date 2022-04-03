@@ -1,0 +1,18 @@
+{
+  "create": {
+    "name": "morpheus",
+    "job": "leader",
+    "id": "Any val",
+    "createdAt": "date val"
+  },
+  "register": {
+    "id": 4,
+    "token": "QpwL5tke4Pnpja7X4"
+  },
+  "missing_pwd": {
+    "error": "Missing password"
+  },
+  "login": {
+    "token": "QpwL5tke4Pnpja7X4"
+  }
+}
