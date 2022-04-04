@@ -179,6 +179,7 @@ def test_patch_request():
         assert update_user_request.get(key) == response_data.get(key)
 
 
+@pytest.mark.delete
 def test_delete_request():
     """
     Check DELETE request to test url
