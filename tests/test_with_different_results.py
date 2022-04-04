@@ -11,12 +11,12 @@ def test_fails():
     assert 0 == 1
 
 
-def test_real_failed():
-    """
-    Failed test
-    :return: None
-    """
-    assert 0 == 1
+# def test_real_failed():
+#     """
+#     Failed test
+#     :return: None
+#     """
+#     assert 0 == 1
 
 
 @pytest.mark.skipif(sys.version_info <= (2, 7), reason=f"Test is supported only for versions <= 2.7."
