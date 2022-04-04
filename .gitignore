@@ -4,3 +4,4 @@ story.txt
 /__pycache__
 tests/.pytest_cache
 tests/__pycache__/
+/.idea
