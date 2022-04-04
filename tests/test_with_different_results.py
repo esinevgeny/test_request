@@ -11,7 +11,6 @@ def test_fails():
     assert 0 == 1
 
 
-@pytest.mark.failed
 def test_real_failed():
     """
     Failed test

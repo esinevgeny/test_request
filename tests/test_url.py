@@ -2,7 +2,15 @@ import requests
 import json
 import pytest
 import urllib.parse
-from conftest import POST, GET
+
+PATH_TO_RESP_FILE_GET = '../responses/responses_get.json'
+PATH_TO_RESP_FILE_POST = '../responses/responses_post.json'
+
+# Keys for requests for testing link
+GET = 'get'
+POST = 'post'
+
+responses = {}
 
 # Test link defines
 BASE_URL = 'https://reqres.in/'
@@ -27,9 +35,24 @@ REGISTER_MISSING_PWD = 'missing_pwd'
 LOGIN = 'login'
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def setup():
-    print("here is setup operation")
+    """
+    Read expected responses from file
+    :return: dict with expecred responses
+    :type: dict
+    """
+    global responses
+    for file, req in ((PATH_TO_RESP_FILE_GET, GET),
+                      (PATH_TO_RESP_FILE_POST, POST)
+                      ):
+        try:
+            with open(file, "r") as read_file:
+                data = json.load(read_file)
+            responses.update({req: data})
+        except EnvironmentError:
+            print("Can't read conf file")
+            break
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -38,7 +61,6 @@ def teardown():
     print("here is teardown operation")
 
 
-@pytest.mark.get
 @pytest.mark.parametrize(
     "test_url,request_name,test_name,test_vals",
     [('api/users/2', SINGLE_USER, 'get single user', [PASS_RESPONSE]),
@@ -49,17 +71,15 @@ def teardown():
      ('api/unknown/23', EMPTY, 'single resource not found', [ERR_RESPONSE]),
      ('/api/users?delay=3', DELAYED_RESPONSE, 'delayed response', [PASS_RESPONSE])
      ])
-def test_get_request(test_url, request_name, test_name, test_vals, get_expected_responses):
+def test_get_request(test_url, request_name, test_name, test_vals):
     """
     Check GET request to test url with different combinations of input data
     :param test_url: the test url
     :param request_name: suburl for get request
     :param test_name: test name for print
     :param test_vals: expected response code
-    :param get_expected_responses: dict with expected responses
     :return: None
     """
-    responses = get_expected_responses
     print(f"Performing {test_name} test")
     full_url = urllib.parse.urljoin(BASE_URL, test_url)
     expected_response = responses.get(GET)[request_name]
@@ -97,7 +117,6 @@ update_user_request = {
 }
 
 
-@pytest.mark.post
 @pytest.mark.parametrize(
     "test_url,request_name,test_name,expected_code,post_data",
     [('api/users', CREATE, 'create user', PASS_CREATE_RESPONSE, create_request),
@@ -106,7 +125,7 @@ update_user_request = {
      ('api/login', LOGIN, 'login', PASS_RESPONSE, login_request),
      ('api/login', REGISTER_MISSING_PWD, 'login without pwd', ERR_MISS_PWD_RESPONSE, login_w_pwd_request)
      ])
-def test_post_request(test_url, request_name, test_name, expected_code, post_data, get_expected_responses):
+def test_post_request(test_url, request_name, test_name, expected_code, post_data):
     """
     Check GET request to test url with different combinations of input data
     :param test_url: the test url
@@ -114,10 +133,8 @@ def test_post_request(test_url, request_name, test_name, expected_code, post_dat
     :param test_name: test name for print
     :param expected_code: expected response code
     :param post_data: dict with post data
-    :param get_expected_responses: dict with expected responses
     :return: None
     """
-    responses = get_expected_responses
     print(f"Performing {test_name} test")
     full_url = urllib.parse.urljoin(BASE_URL, test_url)
     response = requests.post(full_url, json=post_data)
@@ -132,7 +149,6 @@ def test_post_request(test_url, request_name, test_name, expected_code, post_dat
         assert response_data == expected_response, 'Unexpected response'
 
 
-@pytest.mark.put
 def test_put_request():
     """
     Check PUT request to test url
@@ -148,7 +164,6 @@ def test_put_request():
         assert update_user_request.get(key) == response_data.get(key)
 
 
-@pytest.mark.patch
 def test_patch_request():
     """
     Check PATCH request to test url
@@ -164,7 +179,6 @@ def test_patch_request():
         assert update_user_request.get(key) == response_data.get(key)
 
 
-@pytest.mark.delete
 def test_delete_request():
     """
     Check DELETE request to test url
